@@ -3,129 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Document</title>
 </head>
 <body>
-    hell
-    <script>
-
-       // GameBoard fun will store the state of the board. 
-
-        function  gameBoard() {
-
-            let gameBoard = [ ];
-            const row = 3;
-            const column = 3;
-
-            for(let i = 0; i < row; i++)
-            {
-                gameBoard[i] = [];
-
-                for(let j = 0; j < column; j++)
-                {
-                    gameBoard[i].push(cell());
-                }
-            }
-
-            //Method will be used by UI to know whole board state.
-            const getBoard = () => gameBoard;
-
-            // to print board cell values in the console.
-            const printBoard = () =>
-            {
-                boardCellValue = gameBoard.map((row)=> row.map((column) => column.getValue() ));
-                console.log(boardCellValue);
-            }
-
-            // Will change the player value to the passed cell.
-            // Here i am trying to manually pass row and column value. and change that cell value to token.
-            const markCell = (row, column, mark) => {
-
-                if (gameBoard[row][column].getValue() == 0)
-                {
-                    gameBoard[row][column].addMark(mark);   
-                }
     
-            }
+    <div class="names">
+        <form>
+            <fieldset>
+                <legend>
+                    Player names.
+                </legend>
+                <label for="player1"></label>
+                <input type="text" required id="player1" name="player1" autocomplete autofocus placeholder="player 1 name">
+    
+                <label for="player1"></label>
+                <input type="text" required id="player2" name="player2" autocomplete autofocus placeholder="player 2 name">
+    
+                <button id="namesB"> Start game </button>
+            </fieldset>
+        </form>
+    </div>
 
-            return { getBoard, printBoard, markCell };
-        }
+    <div class="container">
+        <div class="turn">  </div>
+        <div class="board"> </div>
+    </div>
 
-        function cell(){
-            // Is the each square field on 3 X 3 board where default 0 means empty.
-            // 1 is player1 and 2 means player 2. 
-            // addToken will change the value of the cell.
-            // getValue will return the value of the cell.
-
-            let value = 0;
-
-            const addMark = (player) =>
-            {
-                value = player;
-            }
-
-            const getValue = () =>
-            {
-                return value;
-            }
-
-            return { addMark, getValue }
-        }
-
-        // gameController will have the flow of the game, player turns and who wins the game.
-
-        function gameController(
-            playerOneName = 'Player1',
-            playerTwoName = 'Player2'
-        )
-        {
-            const board = gameBoard();
-
-            const players = [
-                {
-                    name : playerOneName,
-                    mark : 1
-                },
-                {
-                    name : playerTwoName,
-                    mark : 2
-                }
-            ];
-
-            let activePlayer = players[0];
-
-            // Switch function will change the active player to other player.
-            const switchTurn = () => {
-
-                activePlayer = ( activePlayer === players[0] ) ? players[1] : players[0];
-
-            };
-
-            const getActivePlayer = () => activePlayer;
-
-            const printNewRound = () => {
-
-                board.printBoard();
-                console.log(`${getActivePlayer().name}'s turn`);
-
-            };
-
-            const playRound = (row, column) => {
-
-                board.markCell(row, column, getActivePlayer().mark);
-                switchTurn();
-                printNewRound();
-
-            }
-
-            printNewRound();
-
-            return { playRound, printNewRound }
-
-        } 
-
-        const game = gameController();
-
-    </script>
+    <script src="script.js" defer></script>
 </body>
 </html>
