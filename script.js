@@ -81,7 +81,8 @@
     {
     
         let board = gameBoard();
-        // let gameOn = true;
+        let gameOn = true;
+        let draw = false;
 
         // if(gameOn)
         // {
@@ -123,70 +124,102 @@
 
         const playRound = (row, column) => {
 
-            let winnerf = null;
             const boardArr = board.getBoard();
 
             if( boardArr[row][column].getValue() == 0)
             {
                     board.markCell(row, column, activePlayer.mark);
-                    switchTurn();
-                    printNewRound();
+                    
             }
 
             // Win game over condition.
             // 3.1. Check all rows for a win
+            let winnerf = null;
+
+            // Check rows, columns, and diagonals
             for (let i = 0; i < 3; i++) {
-                // Check if all cells in the row have the same value (either 1 or 2)
-                // If they do, the active player wins, and you should stop the game
-                let winnerR1 = boardArr[ i ].every(ele => ele.getValue() == 1);
-                let winnerR2 = boardArr[ i ].every(ele => ele.getValue() == 2);
-                let winnerC1 = [ 0, 1, 2].every( j => boardArr[ j ][ i ].getValue() == 1);
-                let winnerC2 = [ 0, 1, 2].every( j => boardArr[ j ][ i ].getValue() == 2);
+                // Row and column checks
+                const rowWinner1 = boardArr[i].every(cell => cell.getValue() === 1);
+                const rowWinner2 = boardArr[i].every(cell => cell.getValue() === 2);
+                const colWinner1 = [0, 1, 2].every(j => boardArr[j][i].getValue() === 1);
+                const colWinner2 = [0, 1, 2].every(j => boardArr[j][i].getValue() === 2);
 
-                if(winnerR1 || winnerC1)
-                {
+                if (rowWinner1 || colWinner1) {
                     winnerf = players[0];
-                    break;
+                    break; // Stop further checks
                 }
 
-                if(winnerR2 || winnerC2)
-                {
+                if (rowWinner2 || colWinner2) {
                     winnerf = players[1];
-                    break;
+                    break; // Stop further checks
                 }
             }
 
-            let mainDigo = [];
-            let antiDigo = [];
+            // Check diagonals
+            if (!winnerf) {
+                const mainDiagonalWinner1 = [0, 1, 2].every(i => boardArr[i][i].getValue() === 1);
+                const mainDiagonalWinner2 = [0, 1, 2].every(i => boardArr[i][i].getValue() === 2);
+                const antiDiagonalWinner1 = [0, 1, 2].every(i => boardArr[i][2 - i].getValue() === 1);
+                const antiDiagonalWinner2 = [0, 1, 2].every(i => boardArr[i][2 - i].getValue() === 2);
 
-            let winnerDm1 = [ 0, 1, 2].every( j => boardArr[ j ][ j ].getValue() == 1);
-            let winnerDm2 = [ 0, 1, 2].every( j => boardArr[ j ][ j ].getValue() == 2);
-            let winnerDa1 = [ 0, 1, 2].every( j => boardArr[ j ][ 2 - j ].getValue() == 1);
-            let winnerDa2 = [ 0, 1, 2].every( j => boardArr[ j ][ 2 - j  ].getValue() == 2);
-
-            if(winnerDm1 || winnerDa1)
-            {
-                winnerf = players[0];
+                if (mainDiagonalWinner1 || antiDiagonalWinner1) {
+                    winnerf = players[0];
+                } else if (mainDiagonalWinner2 || antiDiagonalWinner2) {
+                    winnerf = players[1];
+                }
             }
 
-            if(winnerDm2 || winnerDa2)
+            // Announce the winner
+            if (winnerf) 
+                {
+                    console.log(`Winner is ${getActivePlayer().name}! Let's go.`);
+                    getActivePlayer().score++;
+                    console.log(`${getActivePlayer().name}'s score is ${getActivePlayer().score}`);
+                    board.reset();
+                    gameOn = false;
+                }
+            
+            //Draw condition if all cells value is 1 or 2 and winnerf == null then draw.
+
+            let ttt = true;
+            for(let row = 0; row < 3; row++)
             {
-                winnerf = players[1];
+                for( let column = 0; column < 3; column++)
+                {
+                    if(boardArr[row][column].getValue() == 0)
+                    {
+                        ttt = false; 
+                        break;
+                    }
+                }
             }
 
-            if(winnerf)
+            if(ttt && !winnerf)
             {
-                console.log(`Winner is ${winnerf.name} Let's go.`);
-                winnerf.score++;
-                console.log(`${winnerf.name}'s score is ${winnerf.score}`);
                 board.reset();
+                gameOn = false;
+                draw = true;
+            }
+
+            if(gameOn)
+            {
+                switchTurn();
+                
             }
         
+        }
+
+        const drawF = () => draw;
+
+        const drawC = () => {
+            draw = false;
         }
 
         const reset = () =>{
 
             board.reset();
+            draw = false;
+            gameOn = true;
 
         }
 
@@ -197,10 +230,20 @@
 
         }
 
+        const gameOnf = () => {
+            return gameOn;
+        }
+
+        const getPlayers = () => players;
+
+        const changeOn = () => {
+            gameOn = true;
+        }
+
         console.log('Start game');
         console.log(`${getActivePlayer().name}'s turn`);
 
-        return { playRound, getActivePlayer, getBoard : board.getBoard, reset, changeNames }
+        return { playRound, getActivePlayer, getBoard : board.getBoard, reset, changeNames, gameOnf, getPlayers, changeOn, drawC, drawF }
 
     } 
 
@@ -213,6 +256,7 @@
 
         const turnDiv = document.querySelector('.turn');
         const boardDiv = document.querySelector('.board');
+        const containerDiv = document.querySelector('.container');
 
         const namesB = document.querySelector('#namesB');
 
@@ -239,6 +283,11 @@
 
         function updateScreen()
         {
+            if(containerDiv.style.display == 'none')
+            {
+                    containerDiv.style.display = 'block';
+            }
+            // boardDiv.style.display = 'grid';
             boardDiv.textContent = '';
             // Get the current state of the board.
             const board = game.getBoard();
@@ -278,17 +327,117 @@
                     const column = parseInt(e.target.dataset.column, 10);
 
                     game.playRound(row, column);
-                    updateScreen()
+
+                    // If round is finished that is winner is declared. gameOn vari is set to false. and 
+                    // score card displayed for player and score.
+
+                    if( game.gameOnf() == false )
+                    {
+                        containerDiv.style.display = 'none';
+
+                        const resultDiv = document.createElement('div');
+                        const body = document.querySelector('body');
+
+                        // Winner header after round.
+                        const h4 = document.createElement('h4');
+
+                        if(game.drawF())
+                        {
+                            h4.textContent = 'Match is draw !';
+                            game.drawC();
+                        }
+                        else
+                        {
+                            h4.textContent = `Winner is ${game.getActivePlayer().name} !`;
+                        }
+                        resultDiv.appendChild(h4);
+                        
+                        // Score table. with name and score.
+                        const table = document.createElement('table');
+                        const thead = document.createElement('th');
+                        const hrow = document.createElement('tr');
+
+                        let headers = [ 'Name', 'Score' ];
+
+                        for( const header of headers)
+                        {
+                            const th = document.createElement('th');
+                            th.textContent = header;
+                            hrow.appendChild(th);
+                        }
+
+                        thead.appendChild(hrow);
+                        table.appendChild(thead);
+
+                        let data = game.getPlayers();
+
+                        for( const player of data)
+                        {
+                            const drow = document.createElement('tr');
+
+                            for( const keys of Object.keys(player))
+                            {
+                                if(keys == 'name' || keys == 'score')
+                                {
+                                    const td = document.createElement('td');
+                                    td.textContent = player[keys]
+                                    drow.appendChild(td); 
+                                }
+                            }
+
+                            table.appendChild(drow);
+                        }
+
+                        const caption = document.createElement('caption');
+                        const captext = document.createTextNode('Score Card');
+                        caption.appendChild(captext);
+                        table.appendChild(caption);
+
+                        resultDiv.appendChild(table);
+
+                        // playAgain for same game new set.
+                        const playAgain = document.createElement('button');
+                        playAgain.textContent = 'Play Again';
+
+                        playAgain.addEventListener('click', () => {
+
+                            event.preventDefault();
+                            game.reset();
+                            updateScreen();
+                            game.changeOn();
+                            resultDiv.remove();
+                        })
+                        resultDiv.appendChild(playAgain);
+
+                        // newAgain for new game.
+                        const newGame = document.createElement('button');
+                        newGame.textContent = 'New Game';
+
+                        newGame.addEventListener('click', () => {
+
+                            event.preventDefault();
+                            location.reload();
+                        })
+                        resultDiv.appendChild(newGame);
+                        body.appendChild(resultDiv);
+
+                        // game.changeOn();
+                    }
+
+                    if(game.gameOnf())
+                    {
+                        updateScreen();
+                    }
                 }
             }
 
         boardDiv.addEventListener('click', squareClicked);
 
-        if( !namesB )
-        {
-            updateScreen();
-        }  
+        // if( !namesB )
+        // {
+        //     updateScreen();
+        // }  
         // updateScreen();
     }
     
-    screenController();
+screenController();
