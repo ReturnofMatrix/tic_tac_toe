@@ -1,13 +1,73 @@
-.board{
-    color: red;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
+fieldset {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adjusted for better responsiveness */
+  gap: 20px; /* Reduced gap for better spacing */
+  justify-content: center; /* Center aligns the grid within the parent */
+  border: 1px solid #ccc; /* Optional: to make fieldset visually defined */
+  padding: 20px;
 }
-table, th, td {
-    border: 1px solid;
-  }
 
-  table {
-    border-collapse: collapse;
-  }
+.board {
+  color: red;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Ensures equal-sized columns */
+  grid-template-rows: repeat(3, 1fr); /* Ensures equal-sized rows */
+  gap: 5px; /* Adds spacing between the cells */
+  justify-content: center; /* Centers the grid within its container */
+  align-items: center; /* Centers content vertically */
+  max-width: 300px; /* Restricts the board size */
+  margin: auto; /* Centers the board */
+}
+
+.cell {
+  width: 100px; /* Sets consistent width for cells */
+  height: 100px; /* Sets consistent height for cells */
+  text-align: center;
+  display: flex; /* Centers content inside the cell */
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black; /* Defines cell borders */
+}
+
+.turn {
+  font-size: larger;
+  font-weight: bold;
+  text-align: center;
+}
+
+.container {
+  display: grid;
+  grid-template-rows: 1fr auto auto; /* Adjust rows for flexibility */
+  gap: 20px; /* Spacing between rows */
+  justify-content: center; /* Center-aligns all content */
+}
+
+.result {
+  text-align: center;
+  margin-top: 20px;
+}
+
+table {
+  margin: 0 auto; /* Centers the table */
+  border-collapse: collapse;
+  width: 50%; /* Optional: Adjust the table size */
+  max-width: 600px; /* Limits table width */
+}
+
+caption {
+  font-size: large;
+  font-weight: bold;
+}
+
+th, td {
+  border: 1px solid black; /* Add border to the table cells */
+  padding: 8px; /* Add padding for better spacing */
+  text-align: center; /* Center-align the text */
+}
+
+button {
+  padding: 10px 20px; /* Adjust button padding */
+  font-size: 16px; /* Makes button text readable */
+  margin: auto; /* Centers the button */
+  display: block; /* Ensures block-level centering */
+}

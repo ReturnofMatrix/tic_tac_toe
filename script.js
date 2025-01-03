@@ -18,7 +18,6 @@
         const reset = () => {
 
             gameBoard.length = 0;
-
             for(let i = 0; i < row; i++)
                 {
                     gameBoard[ i ] = [ ];
@@ -27,9 +26,7 @@
                         gameBoard[ i ].push(cell());
                     }
                 }
-
         }
-
         //Method will be used by UI to know whole board state.
         const getBoard = () => gameBoard;
 
@@ -84,11 +81,6 @@
         let gameOn = true;
         let draw = false;
 
-        // if(gameOn)
-        // {
-        //     board = gameBoard();
-        // }
-
         const players = [
             {
                 name : '',
@@ -118,18 +110,17 @@
             board.printBoard();
 
         };
-
         // playRound is how we play game. the attached row and column datasets is how we know we have 
         // clicked which square. 
-
         const playRound = (row, column) => {
 
             const boardArr = board.getBoard();
+            let notSame = false;
 
             if( boardArr[row][column].getValue() == 0)
             {
-                    board.markCell(row, column, activePlayer.mark);
-                    
+                board.markCell(row, column, activePlayer.mark);
+                notSame = true;
             }
 
             // Win game over condition.
@@ -175,12 +166,11 @@
                     console.log(`Winner is ${getActivePlayer().name}! Let's go.`);
                     getActivePlayer().score++;
                     console.log(`${getActivePlayer().name}'s score is ${getActivePlayer().score}`);
-                    board.reset();
+                    // board.reset();
                     gameOn = false;
                 }
             
             //Draw condition if all cells value is 1 or 2 and winnerf == null then draw.
-
             let ttt = true;
             for(let row = 0; row < 3; row++)
             {
@@ -196,12 +186,12 @@
 
             if(ttt && !winnerf)
             {
-                board.reset();
+                // board.reset();
                 gameOn = false;
                 draw = true;
             }
 
-            if(gameOn)
+            if(gameOn && notSame)
             {
                 switchTurn();
                 
@@ -240,14 +230,9 @@
             gameOn = true;
         }
 
-        console.log('Start game');
-        console.log(`${getActivePlayer().name}'s turn`);
-
-        return { playRound, getActivePlayer, getBoard : board.getBoard, reset, changeNames, gameOnf, getPlayers, changeOn, drawC, drawF }
+        return {printNewRound, playRound, getActivePlayer, getBoard : board.getBoard, reset, changeNames, gameOnf, getPlayers, changeOn, drawC, drawF }
 
     } 
-
-    // const game = gameController();
 
     //  screenController is to control the UI of the screen 
     function screenController () {
@@ -291,6 +276,10 @@
             boardDiv.textContent = '';
             // Get the current state of the board.
             const board = game.getBoard();
+            if(game.gameOnf() == false)
+                {
+                    game.printNewRound();
+            }
             const activePlayer = game.getActivePlayer();
             
             turnDiv.textContent = `${activePlayer.name}'s turn`;
@@ -301,7 +290,17 @@
                 {
                     // Anything clickable should be button.
                     const cell = document.createElement('button');
-                    cell.textContent = board[row][column].getValue();
+                    let val = board[row][column].getValue();
+                    if(val == 0)
+                    {
+                        cell.textContent = ' ';
+                    }else if(val == 1)
+                    {
+                            cell.textContent = 'X';
+                    }else if(val == 2)
+                    {
+                        cell.textContent = 'O';
+                    }
                     cell.classList.add('cell');
                     cell.dataset.row = row;
                     cell.dataset.column = column;
@@ -309,52 +308,65 @@
                 }
             }
 
-            const resetB = document.createElement('button');
-            resetB.textContent = 'Reset game.';
-            boardDiv.appendChild(resetB);
+            const resetB = document.querySelector('.reset');
 
-            resetB.addEventListener('click', () => {
-                game.reset();
-                updateScreen();
-            })
+            if(!resetB){
+                const resetB = document.createElement('button');
+                resetB.classList.add('reset');
+                resetB.textContent = 'Reset game.';
+                containerDiv.appendChild(resetB);
+
+                resetB.addEventListener('click', () => {
+                    game.reset();
+                    updateScreen();
+                })
+            }
         }
 
         function squareClicked (e)
+        {
+            if (!game.gameOnf())
             {
-                if(e.target.matches('.cell'))
-                {
-                    const row = parseInt(e.target.dataset.row, 10);
-                    const column = parseInt(e.target.dataset.column, 10);
+                return;
+            }
 
-                    game.playRound(row, column);
+            if(e.target.matches('.cell'))
+            {
+                const row = parseInt(e.target.dataset.row, 10);
+                const column = parseInt(e.target.dataset.column, 10);
 
+                game.playRound(row, column);
                     // If round is finished that is winner is declared. gameOn vari is set to false. and 
                     // score card displayed for player and score.
 
-                    if( game.gameOnf() == false )
-                    {
-                        containerDiv.style.display = 'none';
-
+                if( game.gameOnf() == false )
+                {
                         const resultDiv = document.createElement('div');
+                        resultDiv.classList.add('result');
                         const body = document.querySelector('body');
 
                         // Winner header after round.
-                        const h4 = document.createElement('h4');
+                        const h2 = document.createElement('h2');
 
                         if(game.drawF())
                         {
-                            h4.textContent = 'Match is draw !';
+                            turnDiv.textContent = 'Match is draw !';
+                            h2.textContent = 'Match is draw !';
                             game.drawC();
                         }
                         else
                         {
-                            h4.textContent = `Winner is ${game.getActivePlayer().name} !`;
+                            turnDiv.textContent = `Winner is ${game.getActivePlayer().name} !`;
+                            h2.textContent = `Winner is ${game.getActivePlayer().name} !`;
                         }
-                        resultDiv.appendChild(h4);
-                        
-                        // Score table. with name and score.
+                        resultDiv.appendChild(h2);
+                        updateScreen();
+
+                        setTimeout( () => {
+                        containerDiv.style.display = 'none';
+                            // Score table. with name and score.
                         const table = document.createElement('table');
-                        const thead = document.createElement('th');
+                        const thead = document.createElement('thead');
                         const hrow = document.createElement('tr');
 
                         let headers = [ 'Name', 'Score' ];
@@ -420,24 +432,21 @@
                         })
                         resultDiv.appendChild(newGame);
                         body.appendChild(resultDiv);
-
-                        // game.changeOn();
-                    }
+                        }, 1500);                        
+                }
 
                     if(game.gameOnf())
                     {
                         updateScreen();
                     }
-                }
             }
+        }
 
         boardDiv.addEventListener('click', squareClicked);
-
-        // if( !namesB )
-        // {
-        //     updateScreen();
-        // }  
-        // updateScreen();
     }
     
 screenController();
+
+
+// PLayer turn is changing even after you click the occupied square. 
+// It should not change the  turn . styling of result display .
